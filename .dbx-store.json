@@ -1,0 +1,17 @@
+{
+  "name": "Busy Terminal",
+  "description": "Fake busy terminal scenes in a workbench or floating desktop widget. Entertainment only — not a real shell.",
+  "icon": "assets/plugin.svg",
+  "tags": ["terminal", "fun", "workbench", "widget"],
+  "permissions": ["host.workbench", "host.storage"],
+  "source": "https://github.com/allran/dbx-plugin-busy-terminal",
+  "homepage": "https://github.com/allran/dbx-plugin-busy-terminal",
+  "license": "Apache-2.0",
+  "releaseNotes": "Initial release: fake cargo/docker/sql/ansible/download/terraform scenes, settings drawer, optional floating widget, preference persistence.",
+  "localizations": {
+    "zh-CN": {
+      "name": "忙碌终端",
+      "description": "在工作台或桌面浮动窗里播放假忙碌日志。仅供娱乐，不是真实终端。"
+    }
+  }
+}

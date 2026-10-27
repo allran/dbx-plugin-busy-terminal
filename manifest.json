@@ -1,0 +1,77 @@
+{
+  "$schema": "https://raw.githubusercontent.com/t8y2/dbx/main/plugins/manifest.schema.json",
+  "manifest_version": 1,
+  "id": "io.dbx.busy-terminal",
+  "name": "Busy Terminal",
+  "version": "0.1.0",
+  "publisher": "alan",
+  "description": "Fake busy terminal scenes in a workbench or floating desktop widget. Entertainment only — not a real shell.",
+  "icon": "assets/plugin.svg",
+  "source": "https://github.com/allran/dbx-plugin-busy-terminal",
+  "homepage": "https://github.com/allran/dbx-plugin-busy-terminal",
+  "engines": {
+    "dbx": ">=0.5.68",
+    "host_api": "1"
+  },
+  "permissions": ["host.workbench", "host.storage"],
+  "entrypoints": {
+    "ui": {
+      "root": "ui",
+      "entry": "ui/index.html"
+    }
+  },
+  "contributions": [
+    {
+      "type": "workbench",
+      "id": "io.dbx.busy-terminal.workbench",
+      "label": "Busy Terminal",
+      "description": "Pretend to be busy with fake compile, migrate, and deploy logs.",
+      "icon": "assets/plugin.svg"
+    },
+    {
+      "type": "command",
+      "id": "io.dbx.busy-terminal.open",
+      "label": "Open Busy Terminal",
+      "action": {
+        "type": "open-workbench",
+        "workbench": "io.dbx.busy-terminal.workbench",
+        "presentation": "tab",
+        "reuse": "singleton"
+      }
+    },
+    {
+      "type": "menus",
+      "id": "io.dbx.busy-terminal.menus",
+      "items": [
+        {
+          "location": "commandPalette",
+          "command": "io.dbx.busy-terminal.open",
+          "group": "navigation",
+          "order": 40
+        },
+        {
+          "location": "appToolbar",
+          "command": "io.dbx.busy-terminal.open",
+          "group": "navigation",
+          "order": 40,
+          "default_visible": true
+        }
+      ]
+    }
+  ],
+  "localizations": {
+    "zh-CN": {
+      "name": "忙碌终端",
+      "description": "在工作台或桌面浮动窗里播放假忙碌日志。仅供娱乐，不是真实终端。",
+      "contributions": {
+        "io.dbx.busy-terminal.workbench": {
+          "label": "忙碌终端",
+          "description": "假装在编译、迁移、部署——纯假日志特效。"
+        },
+        "io.dbx.busy-terminal.open": {
+          "label": "打开忙碌终端"
+        }
+      }
+    }
+  }
+}
