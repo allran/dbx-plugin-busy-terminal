@@ -1,11 +1,13 @@
 <script>
   import { SCENE_IDS } from "../lib/scenes.js";
+  import { SPEED_MAX, SPEED_MIN } from "../lib/speed.js";
 
   /** @type {{
    *   open: boolean,
    *   text: Record<string, any>,
    *   sceneId: string,
    *   speed: number,
+   *   speedRandom: boolean,
    *   running: boolean,
    *   canFloat: boolean,
    *   isWindow: boolean,
@@ -22,6 +24,7 @@
     text,
     sceneId = $bindable(""),
     speed = $bindable(1),
+    speedRandom = $bindable(false),
     running = false,
     canFloat = false,
     isWindow = false,
@@ -36,6 +39,12 @@
 
   function onBackdropKey(event) {
     if (event.key === "Escape") onclose?.();
+  }
+
+  function setSpeedRandom(next) {
+    if (speedRandom === next) return;
+    speedRandom = next;
+    onspeedchange?.();
   }
 </script>
 
@@ -85,17 +94,39 @@
       </div>
     </div>
 
-    <label class="field">
-      <span>{text.speed} · {Number(speed).toFixed(1)}×</span>
-      <input
-        type="range"
-        min="0.4"
-        max="4"
-        step="0.2"
-        bind:value={speed}
-        oninput={onspeedchange}
-      />
-    </label>
+    <div class="field">
+      <span>{text.speed} · {speedRandom ? text.speedRandom : `${Number(speed).toFixed(1)}×`}</span>
+      <div class="speed-mode" role="group" aria-label={text.speedMode}>
+        <button
+          type="button"
+          class:active={!speedRandom}
+          aria-pressed={!speedRandom}
+          onclick={() => setSpeedRandom(false)}
+        >
+          {text.speedFixed}
+        </button>
+        <button
+          type="button"
+          class:active={speedRandom}
+          aria-pressed={speedRandom}
+          onclick={() => setSpeedRandom(true)}
+        >
+          {text.speedRandom}
+        </button>
+      </div>
+      {#if speedRandom}
+        <p class="field-hint">{text.speedRandomHint}</p>
+      {:else}
+        <input
+          type="range"
+          min={SPEED_MIN}
+          max={SPEED_MAX}
+          step="0.2"
+          bind:value={speed}
+          oninput={onspeedchange}
+        />
+      {/if}
+    </div>
 
     <div class="actions">
       <button type="button" class="with-icon" onclick={ontoggle}>
@@ -236,6 +267,36 @@
   }
   input[type="range"] {
     width: 100%;
+  }
+
+  .speed-mode {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .speed-mode button {
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 8px;
+    padding: 7px 10px;
+    color: #e5e7eb;
+    background: rgba(15, 23, 42, 0.72);
+    font-size: 12px;
+  }
+  .speed-mode button:hover {
+    border-color: rgba(134, 239, 172, 0.35);
+    background: rgba(22, 101, 52, 0.18);
+  }
+  .speed-mode button.active {
+    border-color: rgba(134, 239, 172, 0.65);
+    color: #ecfdf5;
+    background: rgba(21, 128, 61, 0.35);
+    box-shadow: inset 0 0 0 1px rgba(134, 239, 172, 0.2);
+  }
+  .field-hint {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.45;
+    opacity: 0.65;
   }
 
   .scene-list {
