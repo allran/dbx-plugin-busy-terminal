@@ -3,6 +3,7 @@
   import SettingsDrawer from "./components/SettingsDrawer.svelte";
   import { resolveMessages } from "./lib/i18n.js";
   import { SCENE_IDS, createScene } from "./lib/scenes.js";
+  import { lineDelayMs } from "./lib/speed.js";
 
   const STORAGE_KEY = "busy-terminal-prefs";
   const MAX_LINES = 400;
@@ -12,6 +13,7 @@
   let surface = $state("tab");
   let sceneId = $state("sql");
   let speed = $state(1);
+  let speedRandom = $state(false);
   let running = $state(true);
   let lines = $state(/** @type {string[]} */ ([]));
   let canFloat = $state(false);
@@ -94,6 +96,7 @@
       if (SCENE_IDS.includes(raw.sceneId)) sceneId = raw.sceneId;
       const nextSpeed = Number(raw.speed);
       if (Number.isFinite(nextSpeed) && nextSpeed > 0) speed = nextSpeed;
+      if (typeof raw.speedRandom === "boolean") speedRandom = raw.speedRandom;
       if (typeof raw.running === "boolean") running = raw.running;
     } catch {
       /* ignore */
@@ -106,6 +109,7 @@
       await window.dbxPlugin.storage.set(STORAGE_KEY, {
         sceneId,
         speed: Number(speed) || 1,
+        speedRandom,
         running,
       });
     } catch {
@@ -116,7 +120,8 @@
   function restartScene(clear = true) {
     scene = createScene(sceneId);
     if (clear) lines = [];
-    appendLine(`$ busy-terminal --scene ${sceneId} --speed ${speed}`);
+    const speedLabel = speedRandom ? "random" : speed;
+    appendLine(`$ busy-terminal --scene ${sceneId} --speed ${speedLabel}`);
   }
 
   function appendLine(line) {
@@ -130,9 +135,7 @@
   function schedule() {
     if (timer) clearTimeout(timer);
     if (!running) return;
-    const factor = Number(speed) || 1;
-    const delay = Math.max(40, Math.round(280 / factor));
-    timer = window.setTimeout(tick, delay);
+    timer = window.setTimeout(tick, lineDelayMs(speed, speedRandom));
   }
 
   function tick() {
@@ -185,7 +188,7 @@
         alwaysOnTop: true,
         skipTaskbar: true,
         resizable: true,
-        context: { sceneId, speed: Number(speed) || 1 },
+        context: { sceneId, speed: Number(speed) || 1, speedRandom },
       });
       settingsOpen = false;
     } catch (err) {
@@ -300,6 +303,7 @@
   {text}
   bind:sceneId
   bind:speed
+  bind:speedRandom
   {running}
   {canFloat}
   {isWindow}

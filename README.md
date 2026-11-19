@@ -7,17 +7,17 @@ Inspired by the idea of [genact](https://github.com/svenstaro/genact), but imple
 ## Features
 
 - Scene modules: `cargo`, `docker`, `sql`, `ansible`, `download`, `terraform`
-- Settings drawer: scene, speed, play / pause, clear
+- Settings drawer: scene, fixed or random speed, play / pause, clear
 - Command palette + app toolbar entry
 - Optional desktop floating widget via `floating.open` (requires `host.workbench` + `capabilities.floating`)
-- Remembers scene / speed with `host.storage` when available
+- Remembers scene, speed, and random-speed mode with `host.storage` when available
 
 ## Permissions
 
 | Permission | Why |
 | --- | --- |
 | `host.workbench` | Open floating desktop widget |
-| `host.storage` | Persist scene / speed preferences |
+| `host.storage` | Persist scene, speed, and random-speed preferences |
 
 No network, no Sidecar, no secrets.
 
