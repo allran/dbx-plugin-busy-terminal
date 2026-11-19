@@ -15,6 +15,7 @@
    *   onclose: () => void,
    *   onscenechange: () => void,
    *   onspeedchange: () => void,
+   *   onspeedmodechange: () => void,
    *   ontoggle: () => void,
    *   onclear: () => void,
    *   onopenfloat: () => void,
@@ -32,6 +33,7 @@
     onclose,
     onscenechange,
     onspeedchange,
+    onspeedmodechange,
     ontoggle,
     onclear,
     onopenfloat,
@@ -44,7 +46,7 @@
   function setSpeedRandom(next) {
     if (speedRandom === next) return;
     speedRandom = next;
-    onspeedchange?.();
+    onspeedmodechange?.();
   }
 </script>
 
@@ -95,7 +97,7 @@
     </div>
 
     <div class="field">
-      <span>{text.speed} · {speedRandom ? text.speedRandom : `${Number(speed).toFixed(1)}×`}</span>
+      <span id="speed-label">{text.speed} · {speedRandom ? text.speedRandom : `${Number(speed).toFixed(1)}×`}</span>
       <div class="speed-mode" role="group" aria-label={text.speedMode}>
         <button
           type="button"
@@ -122,6 +124,7 @@
           min={SPEED_MIN}
           max={SPEED_MAX}
           step="0.2"
+          aria-labelledby="speed-label"
           bind:value={speed}
           oninput={onspeedchange}
         />

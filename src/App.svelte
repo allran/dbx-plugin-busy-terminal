@@ -43,6 +43,7 @@
       canFloat = Boolean(window.dbxPlugin.capabilities?.floating);
 
       await loadPrefs();
+      applyLaunchContext(ctx);
       restartScene(false);
       schedule();
       queueMicrotask(syncScrollbarWidth);
@@ -93,14 +94,24 @@
       if (!window.dbxPlugin?.capabilities?.storage) return;
       const raw = await window.dbxPlugin.storage.get(STORAGE_KEY);
       if (!raw || typeof raw !== "object") return;
-      if (SCENE_IDS.includes(raw.sceneId)) sceneId = raw.sceneId;
-      const nextSpeed = Number(raw.speed);
-      if (Number.isFinite(nextSpeed) && nextSpeed > 0) speed = nextSpeed;
-      if (typeof raw.speedRandom === "boolean") speedRandom = raw.speedRandom;
-      if (typeof raw.running === "boolean") running = raw.running;
+      applyPrefs(raw);
     } catch {
       /* ignore */
     }
+  }
+
+  /** Prefer floating.open context over storage for this surface instance. */
+  function applyLaunchContext(ctx) {
+    if (!ctx || typeof ctx !== "object") return;
+    applyPrefs(ctx);
+  }
+
+  function applyPrefs(raw) {
+    if (SCENE_IDS.includes(raw.sceneId)) sceneId = raw.sceneId;
+    const nextSpeed = Number(raw.speed);
+    if (Number.isFinite(nextSpeed) && nextSpeed > 0) speed = nextSpeed;
+    if (typeof raw.speedRandom === "boolean") speedRandom = raw.speedRandom;
+    if (typeof raw.running === "boolean") running = raw.running;
   }
 
   async function savePrefs() {
@@ -158,6 +169,13 @@
   function onSpeedChange() {
     savePrefs();
     schedule();
+  }
+
+  function onSpeedModeChange() {
+    savePrefs();
+    schedule();
+    const speedLabel = speedRandom ? "random" : speed;
+    appendLine(`$ busy-terminal --scene ${sceneId} --speed ${speedLabel}`);
   }
 
   function toggleRun() {
@@ -311,6 +329,7 @@
   onclose={() => (settingsOpen = false)}
   onscenechange={onSceneChange}
   onspeedchange={onSpeedChange}
+  onspeedmodechange={onSpeedModeChange}
   ontoggle={toggleRun}
   onclear={clearLines}
   onopenfloat={openFloating}
