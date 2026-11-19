@@ -7,7 +7,7 @@
   "source": "https://github.com/allran/dbx-plugin-busy-terminal",
   "homepage": "https://github.com/allran/dbx-plugin-busy-terminal",
   "license": "Apache-2.0",
-  "releaseNotes": "Initial release: fake cargo/docker/sql/ansible/download/terraform scenes, settings drawer, optional floating widget, preference persistence.",
+  "releaseNotes": "0.1.1: fixed or random output speed (log-uniform between 0.4×–4×); remembers mode; floating window respects launch context; speed mode switch updates the command banner.",
   "localizations": {
     "zh-CN": {
       "name": "忙碌终端",
