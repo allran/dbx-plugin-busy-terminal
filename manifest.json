@@ -3,7 +3,7 @@
   "manifest_version": 1,
   "id": "io.dbx.busy-terminal",
   "name": "Busy Terminal",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "alan",
   "description": "Fake busy terminal scenes in a workbench or floating desktop widget. Entertainment only — not a real shell.",
   "icon": "assets/plugin.svg",

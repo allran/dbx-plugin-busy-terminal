@@ -35,12 +35,21 @@
 
   const isWindow = $derived(surface === "window");
 
+  function applyEnv() {
+    const locale = window.dbxPlugin?.locale || navigator.language || "en";
+    text = resolveMessages(locale);
+    canFloat = Boolean(window.dbxPlugin?.capabilities?.floating);
+    const appearance = window.dbxPlugin?.theme?.appearance;
+    if (appearance === "light" || appearance === "dark") {
+      document.documentElement.dataset.dbxTheme = appearance;
+    }
+  }
+
   onMount(() => {
     const boot = window.dbxPlugin?.ready?.then?.(async (ctx) => {
-      const locale = window.dbxPlugin.locale || "en";
-      text = resolveMessages(locale);
+      applyEnv();
       surface = ctx?.surface || "tab";
-      canFloat = Boolean(window.dbxPlugin.capabilities?.floating);
+      window.addEventListener("dbx-plugin-env", applyEnv);
 
       await loadPrefs();
       applyLaunchContext(ctx);
@@ -50,7 +59,7 @@
     });
 
     if (!boot) {
-      text = resolveMessages(navigator.language);
+      applyEnv();
       restartScene(false);
       schedule();
       queueMicrotask(syncScrollbarWidth);
@@ -68,6 +77,7 @@
     if (timer) clearTimeout(timer);
     resizeObserver?.disconnect();
     window.removeEventListener("resize", syncScrollbarWidth);
+    window.removeEventListener("dbx-plugin-env", applyEnv);
   });
 
   function syncScrollbarWidth() {
@@ -336,6 +346,28 @@
 />
 
 <style>
+  :global(:root) {
+    color-scheme: light dark;
+    --bt-bg: var(--color-background, #070b14);
+    --bt-fg: var(--color-foreground, #e5e7eb);
+    --bt-muted: color-mix(in srgb, var(--bt-fg) 58%, transparent);
+    --bt-border: color-mix(in srgb, var(--bt-fg) 14%, transparent);
+    --bt-panel: color-mix(in srgb, var(--bt-fg) 7%, var(--bt-bg));
+    --bt-panel-strong: color-mix(in srgb, var(--bt-fg) 12%, var(--bt-bg));
+    --bt-hover: color-mix(in srgb, var(--bt-fg) 8%, transparent);
+    --bt-accent: var(--color-primary, #22c55e);
+    --bt-accent-fg: var(--color-primary-foreground, #04110a);
+    --bt-accent-soft: color-mix(in srgb, var(--bt-accent) 22%, transparent);
+    --bt-accent-border: color-mix(in srgb, var(--bt-accent) 45%, var(--bt-border));
+    --bt-term-bg: color-mix(in srgb, var(--bt-bg) 72%, #02060e);
+    --bt-term-fg: color-mix(in srgb, var(--bt-accent) 55%, var(--bt-fg));
+    --bt-cursor: color-mix(in srgb, var(--bt-accent) 80%, #fff);
+    --bt-danger: var(--color-destructive, #f87171);
+    --bt-radius: var(--radius-md, 8px);
+    --bt-font: var(--font-sans, "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif);
+    --bt-mono: var(--font-mono, "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace);
+  }
+
   :global(*) {
     box-sizing: border-box;
   }
@@ -344,9 +376,9 @@
     height: 100%;
   }
   :global(body) {
-    font-family: "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
-    color: #e5e7eb;
-    background: #070b14;
+    font-family: var(--bt-font);
+    color: var(--bt-fg);
+    background: var(--bt-bg);
   }
 
   .root {
@@ -356,12 +388,12 @@
     height: 100%;
     min-height: 100vh;
     background:
-      radial-gradient(ellipse at top left, rgba(34, 197, 94, 0.12), transparent 42%),
-      linear-gradient(180deg, #0b1220 0%, #070b14 100%);
+      radial-gradient(ellipse at top left, var(--bt-accent-soft), transparent 42%),
+      linear-gradient(180deg, var(--bt-panel) 0%, var(--bt-bg) 100%);
   }
   .root.window {
     min-height: 100%;
-    background: #05080f;
+    background: var(--bt-bg);
   }
 
   .stage {
@@ -380,20 +412,20 @@
     height: 34px;
     padding: 0;
     border: 0;
-    border-radius: 8px;
-    color: #e5e7eb;
-    background: rgba(15, 23, 42, 0.72);
+    border-radius: var(--bt-radius);
+    color: var(--bt-fg);
+    background: var(--bt-panel-strong);
     cursor: pointer;
     flex-shrink: 0;
   }
   .icon-btn:hover {
-    background: rgba(148, 163, 184, 0.28);
+    background: var(--bt-hover);
   }
   .settings-fab {
     position: absolute;
     top: 10px;
     z-index: 5;
-    border: 1px solid rgba(34, 197, 94, 0.22);
+    border: 1px solid var(--bt-accent-border);
     backdrop-filter: blur(8px);
   }
 
@@ -403,10 +435,10 @@
     align-items: center;
     height: 32px;
     padding: 0 8px 0 10px;
-    border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+    border-bottom: 1px solid var(--bt-accent-border);
     cursor: grab;
     user-select: none;
-    background: rgba(15, 23, 42, 0.85);
+    background: var(--bt-panel-strong);
   }
   .grip:active {
     cursor: grabbing;
@@ -420,8 +452,8 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+    background: var(--bt-accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--bt-accent) 70%, transparent);
   }
   .grip-space {
     flex: 1;
@@ -435,13 +467,13 @@
     padding: 14px 52px 20px 16px;
     overflow: auto;
     scrollbar-gutter: stable;
-    font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-family: var(--bt-mono);
     font-size: 12.5px;
     line-height: 1.55;
     white-space: pre-wrap;
     word-break: break-word;
-    color: #bbf7d0;
-    background: rgba(2, 6, 14, 0.72);
+    color: var(--bt-term-fg);
+    background: var(--bt-term-bg);
   }
   .root.window .term {
     padding-right: 16px;
@@ -450,7 +482,7 @@
     display: inline-block;
     margin-left: 2px;
     animation: blink 1s step-end infinite;
-    color: #4ade80;
+    color: var(--bt-cursor);
   }
   @keyframes blink {
     50% {
